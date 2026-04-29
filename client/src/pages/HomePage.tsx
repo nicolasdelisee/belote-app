@@ -49,7 +49,8 @@ export default function HomePage() {
     if (!user) return
     setLoadingCreate(true)
     try {
-      const { data: game, error } = await (supabase.from('games') as any)
+      const { data: game, error } = await supabase
+        .from('games')
         .insert({ status: 'waiting', team1_score: 0, team2_score: 0, winning_team: null, created_by: user.id })
         .select().single()
       if (error) throw error
