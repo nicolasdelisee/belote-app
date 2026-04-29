@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "Bash(nvm install *)",
+      "Bash(nvm use *)",
+      "Read(//usr/local/bin/**)",
+      "Bash(command -v fnm)",
+      "Bash(npx tsc *)",
+      "Skill(update-config)"
+    ]
+  }
+}
