@@ -17,13 +17,20 @@ export function SeatBadge({ name, team, teamName, elo, active = false, highlight
         className="salon-seat-avatar"
         style={{
           ...(size === 'md' ? { width: 38, height: 38, fontSize: 17 } : undefined),
-          overflow: 'hidden', padding: avatarUrl ? 0 : undefined,
+          position: 'relative',
         }}
       >
-        {avatarUrl
-          ? <img src={avatarUrl} alt={name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
-          : name[0]?.toUpperCase() ?? '?'
-        }
+        {/* Initial always visible as base layer */}
+        {name[0]?.toUpperCase() ?? '?'}
+        {/* Photo as absolute overlay — hidden on mobile via CSS */}
+        {avatarUrl && (
+          <img
+            src={avatarUrl}
+            alt=""
+            className="salon-seat-photo"
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
+          />
+        )}
       </span>
       <span className="salon-seat-meta">
         <span className="salon-seat-name">{name}</span>
@@ -32,7 +39,7 @@ export function SeatBadge({ name, team, teamName, elo, active = false, highlight
           {teamName ?? `Éq.${team}`}
         </span>
         {elo != null && (
-          <span style={{ fontSize: 12, color: 'var(--brass)', fontFamily: "'Fraunces', serif", fontWeight: 600, letterSpacing: '0.02em' }}>
+          <span className="salon-seat-elo" style={{ fontSize: 12, color: 'var(--brass)', fontFamily: "'Fraunces', serif", fontWeight: 600, letterSpacing: '0.02em' }}>
             Elo {elo}
           </span>
         )}
@@ -40,16 +47,20 @@ export function SeatBadge({ name, team, teamName, elo, active = false, highlight
     </div>
   )
 
-  if (!turnLabel) return badge
-
+  // Always wrap in column — visibility:hidden when no label reserves stable space
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
-      <span style={{
-        fontSize: 10, fontFamily: 'Fraunces, serif', fontStyle: 'italic',
-        color: 'var(--brass-soft)', letterSpacing: '0.04em',
-        animation: 'salonTagPulse 2s ease-in-out infinite',
-      }}>
-        {turnLabel}
+      <span
+        className="salon-seat-turn-label"
+        style={{
+          fontSize: 10, fontFamily: 'Fraunces, serif', fontStyle: 'italic',
+          color: 'var(--brass-soft)', letterSpacing: '0.04em',
+          visibility: turnLabel ? 'visible' : 'hidden',
+          animation: turnLabel ? 'salonTagPulse 2s ease-in-out infinite' : undefined,
+          display: 'block', minHeight: '1em',
+        }}
+      >
+        {turnLabel ?? ' '}
       </span>
       {badge}
     </div>

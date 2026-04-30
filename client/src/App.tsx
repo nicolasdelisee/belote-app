@@ -5,6 +5,8 @@ import HomePage from './pages/HomePage'
 import LobbyPage from './pages/LobbyPage'
 import GamePage from './pages/GamePage'
 import ProfilePage from './pages/ProfilePage'
+import HistoryPage from './pages/HistoryPage'
+import PublicProfilePage from './pages/PublicProfilePage'
 
 export default function App() {
   const { user, loading } = useAuth()
@@ -24,6 +26,8 @@ export default function App() {
       <Route path="/game/:id" element={user ? <LobbyPage /> : <Navigate to="/login" />} />
       <Route path="/game/:id/play" element={user ? <GamePage /> : <Navigate to="/login" />} />
       <Route path="/profile" element={user ? <ProfilePage /> : <Navigate to="/login" />} />
+      <Route path="/history" element={user ? <HistoryPage /> : <Navigate to="/login" />} />
+      <Route path="/profile/:id" element={user ? <PublicProfilePage /> : <Navigate to="/login" />} />
     </Routes>
   )
 }

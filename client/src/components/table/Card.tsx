@@ -94,19 +94,22 @@ export function CardBack({ size = 'sm' }: { size?: BackSize }) {
   )
 }
 
-export function OpponentFan({ count, orientation }: {
+export function OpponentFan({ count, orientation, compact = false }: {
   count: number
   orientation: 'top' | 'left' | 'right'
+  compact?: boolean
 }) {
   if (count === 0) return null
 
   const N = count
   const mid = (N - 1) / 2
-  const overlap = 20
-  const cardW = 52   // sm
-  const cardH = 76
+  const size: BackSize = compact ? 'xs' : 'sm'
+  const dim = BACK_DIM[size]
+  const cardW = dim.w
+  const cardH = dim.h
+  const overlap = compact ? 26 : 20
   const fanW = cardW + (N - 1) * (cardW - overlap)
-  const arcH = Math.ceil(mid) * 3
+  const arcH = Math.ceil(mid) * (compact ? 2 : 3)
   const fanH = cardH + arcH + 6
 
   // Rotate the whole fan: top=180° (upside-down), left=90°, right=-90°
@@ -119,7 +122,7 @@ export function OpponentFan({ count, orientation }: {
   const fan = Array.from({ length: N }, (_, i) => {
     const offset = i - mid
     return {
-      ty: Math.abs(offset) * 3,
+      ty: Math.abs(offset) * (compact ? 2 : 3),
       rot: offset * 4,
       ml: i === 0 ? 0 : -overlap,
     }
@@ -142,7 +145,7 @@ export function OpponentFan({ count, orientation }: {
               transformOrigin: '50% 110%',
             }}
           >
-            <CardBack size="sm" />
+            <CardBack size={size} />
           </div>
         ))}
       </div>

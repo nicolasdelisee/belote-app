@@ -50,6 +50,7 @@ interface GameState {
   // Belote/Rebelote tracking
   belotePlayerId: string | null
   beloteCount: 0 | 1 | 2
+  targetScore: number
 }
 
 // socketId -> userId
@@ -186,7 +187,59 @@ function emptyGameState(
     dealOrder: '3-2',
     belotePlayerId: null,
     beloteCount: 0,
+    targetScore: 1000,
   }
+}
+
+async function updateEloAndFinishGame(io: Server, state: GameState, gameId: string, winner: 1 | 2) {
+  const { data: gamePlayers } = await (supabase
+    .from('game_players') as any)
+    .select('player_id, team, elo_before, profiles(games_played, games_won)')
+    .eq('game_id', gameId)
+
+  if (!gamePlayers || gamePlayers.length === 0) return
+
+  const team1 = gamePlayers.filter((p: any) => p.team === 1)
+  const team2 = gamePlayers.filter((p: any) => p.team === 2)
+  if (team1.length === 0 || team2.length === 0) return
+
+  const avgElo1 = team1.reduce((s: number, p: any) => s + (p.elo_before ?? 1000), 0) / team1.length
+  const avgElo2 = team2.reduce((s: number, p: any) => s + (p.elo_before ?? 1000), 0) / team2.length
+
+  const K = 32
+  const expected1 = 1 / (1 + Math.pow(10, (avgElo2 - avgElo1) / 400))
+  const delta1 = Math.round(K * ((winner === 1 ? 1 : 0) - expected1))
+  const delta2 = -delta1
+
+  const eloUpdates: Array<{ playerId: string; delta: number; newElo: number }> = []
+
+  for (const p of gamePlayers as any[]) {
+    const delta = p.team === 1 ? delta1 : delta2
+    const newElo = Math.max(100, (p.elo_before ?? 1000) + delta)
+    eloUpdates.push({ playerId: p.player_id, delta, newElo })
+
+    const gamesPlayed = (p.profiles?.games_played ?? 0) + 1
+    const gamesWon = (p.profiles?.games_won ?? 0) + (p.team === winner ? 1 : 0)
+
+    await supabase.from('profiles')
+      .update({ elo: newElo, games_played: gamesPlayed, games_won: gamesWon })
+      .eq('id', p.player_id)
+
+    await supabase.from('game_players' as any)
+      .update({ elo_after: newElo })
+      .eq('game_id', gameId)
+      .eq('player_id', p.player_id)
+  }
+
+  await (supabase.from('games') as any).update({
+    status: 'finished',
+    winning_team: winner,
+    finished_at: new Date().toISOString(),
+    team1_score: state.team1Score,
+    team2_score: state.team2Score,
+  }).eq('id', gameId)
+
+  broadcastToGame(io, state, 'game:elo_update', { updates: eloUpdates })
 }
 
 export function registerSocketHandlers(io: Server) {
@@ -300,7 +353,7 @@ export function registerSocketHandlers(io: Server) {
       io.emit('game:team_names', { gameId, names })
     })
 
-    socket.on('game:start', async (gameId: string) => {
+    socket.on('game:start', async (gameId: string, targetScore?: number) => {
       const { data: game } = await supabase
         .from('games')
         .select('created_by, game_players(player_id, position, team)')
@@ -324,6 +377,7 @@ export function registerSocketHandlers(io: Server) {
         const state = emptyGameState(ordered, playerTeams, game.created_by)
         state.persistedDeck = shuffleDeck(createDeck())
         state.phase = 'cutting'
+        state.targetScore = typeof targetScore === 'number' && targetScore >= 100 ? targetScore : 1000
 
         gameStates.set(gameId, state)
       }
@@ -597,6 +651,7 @@ export function registerSocketHandlers(io: Server) {
             team2Score: state.team2Score,
             trumpCallerId: state.trumpCallerId,
             trumpCallerTeam: state.trumpCallerId ? state.playerTeams[state.trumpCallerId] : null,
+            trump: state.trump,
             chute,
             litige,
             pendingLitigePoints: state.litigePoints,
@@ -605,9 +660,10 @@ export function registerSocketHandlers(io: Server) {
 
           state.play = null
 
-          if (state.team1Score >= 1000 || state.team2Score >= 1000) {
+          if (state.team1Score >= state.targetScore || state.team2Score >= state.targetScore) {
+            const winner = state.team1Score >= state.team2Score ? 1 : 2
             broadcastToGame(io, state, 'game:game_over', {
-              winner: state.team1Score >= state.team2Score ? 1 : 2,
+              winner,
               team1Score: state.team1Score,
               team2Score: state.team2Score,
             })
@@ -615,6 +671,7 @@ export function registerSocketHandlers(io: Server) {
             state.trump = null
             state.trumpCallerId = null
             state.retourne = null
+            updateEloAndFinishGame(io, state, gameId, winner)
             return
           }
 

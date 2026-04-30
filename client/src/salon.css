@@ -673,9 +673,8 @@
   .salon-me-name { font-size: 14px; }
   .salon-me-sub { font-size: 11px; }
 
-  /* Hand — increase card overlap so 8 cards fit in ~500px */
+  /* Hand — increase overlap for lg cards so 8 fit in ~600–700px wide viewport */
   .salon-hand-row { padding: 6px 0 4px; min-height: 90px; }
-  .salon-hand-slot + .salon-hand-slot { margin-left: -36px !important; }
   .salon-hand-actions { gap: 8px; padding-top: 2px; }
   .salon-primary-btn { padding: 10px 14px; font-size: 12px; }
   .salon-secondary-btn { padding: 9px 12px; font-size: 12px; }
@@ -684,4 +683,55 @@
   .salon-aide-toggle { bottom: 62px; left: 62px; padding: 5px 9px; font-size: 11px; }
   .salon-aide-joker { font-size: 15px; }
   .salon-ref-panel { bottom: 108px; left: 62px; width: 260px; }
+}
+
+/* =========================================================
+   Mobile — phone portrait (< 480 px)
+   ========================================================= */
+@media (max-width: 480px) {
+  /* Hide decorative corners to free space */
+  .salon-ornament { display: none; }
+  .salon-root::after { inset: 6px; border-radius: 18px; }
+
+  /* Compact header */
+  .salon-topbar { padding: 8px 10px; gap: 6px; }
+  .salon-title-block { gap: 6px; }
+  .salon-title-main { font-size: 16px; }
+  .salon-title-eyebrow { font-size: 10px; letter-spacing: 0.14em; }
+  .salon-inline-score { font-size: 16px; gap: 6px; margin-top: 2px; }
+
+  /* Seat badges: compact — avatar + name + team, no ELO, no turn label */
+  .salon-seat-badge { width: 110px; padding: 6px 8px 6px 6px; min-width: 0; gap: 6px; border-radius: 10px; }
+  .salon-seat-elo { display: none; }
+  .salon-seat-turn-label { display: none; }
+  .salon-seat-avatar { width: 28px !important; height: 28px !important; font-size: 12px !important; }
+  .salon-seat-name { font-size: 11px; }
+  .salon-seat-sub { font-size: 9px; }
+
+  /* Middle row: tighter columns, left/right stacked vertically */
+  .salon-middle-row { gap: 4px; }
+  .salon-seat-left { flex-direction: column; align-items: center; gap: 4px; justify-self: start; }
+  .salon-seat-right { flex-direction: column; align-items: center; gap: 4px; justify-self: end; }
+  .salon-seat-top { gap: 6px; }
+
+  /* Tapis: more compact */
+  .salon-felt-area { padding: 2px 4px 10px; gap: 6px; }
+  .salon-tapis { padding: 8px 8px 8px; gap: 10px; border-radius: 12px; }
+  .salon-tapis-trick { gap: 6px; padding: 0; }
+  .salon-trick-slot { width: 56px; }
+
+  /* Hand: sm cards handled by React; reset the overlap override */
+  .salon-hand-row { min-height: 84px; padding: 4px 0 2px; }
+  .salon-hand-actions { min-height: 36px; }
+
+  /* Me badge: more compact */
+  .salon-me-area { gap: 4px; }
+  .salon-me-badge { width: 200px; padding: 8px 14px 8px 8px; gap: 10px; border-radius: 12px; }
+  .salon-me-avatar { width: 34px !important; height: 34px !important; font-size: 15px !important; }
+  .salon-me-name { font-size: 13px; }
+  .salon-me-sub { font-size: 10px; }
+
+  /* Aide toggle: hug the bottom corner */
+  .salon-aide-toggle { bottom: 8px; left: 8px; padding: 5px 8px; font-size: 10px; }
+  .salon-aide-joker { font-size: 14px; }
 }

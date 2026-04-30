@@ -39,6 +39,7 @@ export default function LobbyPage() {
   const [loading, setLoading] = useState(true)
   const [starting, setStarting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [targetScore, setTargetScore] = useState(1000)
   const [teamNames, setTeamNames] = useState<{ 1: string; 2: string }>({ 1: 'Équipe 1', 2: 'Équipe 2' })
   const [teamNameEdits, setTeamNameEdits] = useState<{ 1: string; 2: string }>({ 1: 'Équipe 1', 2: 'Équipe 2' })
   const teamNamesRef = useRef(teamNames)
@@ -172,7 +173,7 @@ export default function LobbyPage() {
       return
     }
     socket?.emit('game:set_team_names', id, teamNamesRef.current)
-    socket?.emit('game:start', id)
+    socket?.emit('game:start', id, targetScore)
     // navigate happens via game:started event (fired after server state is ready)
   }
 
@@ -295,14 +296,35 @@ export default function LobbyPage() {
             )}
 
             {isCreator && isFull && (
-              <button
-                onClick={startGame}
-                disabled={starting}
-                className="salon-primary-btn"
-                style={{ fontSize: 16, padding: '14px 36px' }}
-              >
-                {starting ? 'Lancement…' : '🃏 Lancer la partie'}
-              </button>
+              <>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <label style={{ fontSize: 12, color: 'var(--ink-soft)', letterSpacing: '0.08em', whiteSpace: 'nowrap' }}>
+                    Score cible
+                  </label>
+                  <input
+                    type="number"
+                    min={100}
+                    max={5000}
+                    step={100}
+                    value={targetScore}
+                    onChange={e => setTargetScore(Math.max(100, Number(e.target.value) || 1000))}
+                    style={{
+                      width: 80, padding: '5px 10px', borderRadius: 8, border: '1px solid rgba(201,162,75,0.3)',
+                      background: 'rgba(0,0,0,0.35)', color: 'var(--ink)', fontSize: 13,
+                      fontFamily: 'Fraunces, serif', textAlign: 'center', outline: 'none',
+                    }}
+                  />
+                  <span style={{ fontSize: 11, color: 'var(--ink-faint)' }}>pts</span>
+                </div>
+                <button
+                  onClick={startGame}
+                  disabled={starting}
+                  className="salon-primary-btn"
+                  style={{ fontSize: 16, padding: '14px 36px' }}
+                >
+                  {starting ? 'Lancement…' : '🃏 Lancer la partie'}
+                </button>
+              </>
             )}
 
             {!isCreator && isFull && (

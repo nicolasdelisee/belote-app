@@ -7,6 +7,43 @@ import type { Player } from '../types'
 
 const ELO_MEDALS = ['I', 'II', 'III']
 
+function IconHistory() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ flexShrink: 0 }}>
+      <circle cx="8" cy="8" r="6.2" />
+      <path d="M8 4.5V8.5L10.5 10.5" />
+    </svg>
+  )
+}
+
+function IconProfile() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden="true" style={{ flexShrink: 0 }}>
+      <circle cx="8" cy="5.5" r="2.8" />
+      <path d="M2.5 14.5c0-3 2.5-5.2 5.5-5.2s5.5 2.2 5.5 5.2" />
+    </svg>
+  )
+}
+
+function IconLogout() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ flexShrink: 0 }}>
+      <path d="M6 2.5H3.5A1 1 0 0 0 2.5 3.5v9a1 1 0 0 0 1 1H6" />
+      <path d="M10.5 11L13.5 8 10.5 5" />
+      <path d="M13.5 8H6.5" />
+    </svg>
+  )
+}
+
+function IconCrown() {
+  return (
+    <svg width="13" height="11" viewBox="0 0 13 11" fill="currentColor" aria-hidden="true" style={{ flexShrink: 0, marginBottom: 1 }}>
+      <path d="M1 8.5L2.5 2.5L5.5 5.5L6.5 1L7.5 5.5L10.5 2.5L12 8.5H1Z" />
+      <rect x="1" y="8.5" width="11" height="2" rx="0.8" />
+    </svg>
+  )
+}
+
 export default function HomePage() {
   const { user, signOut } = useAuth()
   const { socket } = useSocket()
@@ -102,8 +139,15 @@ export default function HomePage() {
           >
             ⊡
           </button>
-          <button onClick={() => navigate('/profile')} className="salon-ghost-btn">Mon profil</button>
-          <button onClick={() => signOut()} className="salon-ghost-btn">Déconnexion</button>
+          <button onClick={() => navigate('/history')} className="salon-ghost-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            <IconHistory />Historique
+          </button>
+          <button onClick={() => navigate('/profile')} className="salon-ghost-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            <IconProfile />Mon profil
+          </button>
+          <button onClick={() => signOut()} className="salon-ghost-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            <IconLogout />Déconnexion
+          </button>
         </div>
       </header>
 
@@ -246,7 +290,10 @@ export default function HomePage() {
                       {p.games_played} partie{p.games_played !== 1 ? 's' : ''} · {p.games_won ?? 0} gagnée{(p.games_won ?? 0) > 1 ? 's' : ''}
                     </p>
                   </div>
-                  <span className="salon-leader-elo">{p.elo}</span>
+                  <span className="salon-leader-elo" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                    {i === 0 && <IconCrown />}
+                    {p.elo}
+                  </span>
                 </div>
               ))}
             </div>
