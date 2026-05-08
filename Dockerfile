@@ -1,5 +1,5 @@
 # ── Étape 1 : build du client ────────────────────────────────────────────────
-FROM node:20-alpine AS build-client
+FROM node:22-alpine AS build-client
 WORKDIR /app/client
 
 COPY client/package*.json ./
@@ -18,7 +18,7 @@ ENV VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY
 RUN npm run build
 
 # ── Étape 2 : build du serveur ───────────────────────────────────────────────
-FROM node:20-alpine AS build-server
+FROM node:22-alpine AS build-server
 WORKDIR /app/server
 
 COPY server/package*.json ./
@@ -28,7 +28,7 @@ COPY server/ .
 RUN npm run build
 
 # ── Étape 3 : image finale ───────────────────────────────────────────────────
-FROM node:20-alpine
+FROM node:22-alpine
 WORKDIR /app
 
 COPY --from=build-server /app/server/dist ./dist
